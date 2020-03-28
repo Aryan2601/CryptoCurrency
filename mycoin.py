@@ -9,8 +9,8 @@ Created on Sun Mar 29 00:13:23 2020
 import datetime
 import hashlib
 import json
-from flask import Flask, jsonify, request '''request library is for connecting node to decentralized blockchain network we will use getjson function that will 
-be taken from request'''
+from flask import Flask, jsonify, request #request library is for connecting node to decentralized blockchain network we will use getjson function that will 
+#be taken from request 
 import requests #this will be used to check the node in decentralized network re all in the same chain
 from uuid import uuid4
 from urllib.parse import urlparse
@@ -23,16 +23,21 @@ class BlockChain:
     
     def __init__(self): # here we are initializing the block chain
         self.chain = [] #it is a list where we will append diffrent blocks that will be mined
-        
+        self.transactions = [] #Making list of transactions before they are added to a block
         self.create_block(proof = 1, previous_hash = '0' ) #genesis block created by create block with proof 1 and prevous hash 0 
-        #creating the genesis block 
+        #creating the genesis block
+        
     def create_block(self, proof, previous_hash):#here previous hash is the key element that links two blocks in a row here we will take proof as this is what our create block function will give us
         block = {'index': len(self.chain)+1,
                  'timestamp': str(datetime.datetime.now()),#to check at what date and time the changes where made
                  'proof': proof,
-                 'previous_hash': previous_hash,}
+                 'previous_hash': previous_hash,
+                 'transactions': self.transactions}#here it will take all the transactions 
+        self.transactions = [] #here we make the transcations empty after adding the transactions in a block 
         self.chain.append(block)
         return block 
+    
+    
     def get_previous_block(self): #here this will get us the previous proof of the blockchain
         return self.chain[-1] 
     
@@ -69,6 +74,15 @@ class BlockChain:
             previous_block = block
             block_index += 1
         return True 
+    
+    def add_transactions(self, sender, receiver, amount):#this is the method which will create transaction between the sender and reciever which will add our transaction to list of transactions
+        
+        self.transactions.append({'sender': sender,   #here we will be appending the new transactions 
+                                  'receiver': receiver,
+                                  'amount': amount,}) 
+        previous_block = self.get_previous_block()
+        return previous_block['index']+1
+        
 # Part 2 - Mining our Blockchain
 
 
