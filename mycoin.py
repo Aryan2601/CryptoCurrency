@@ -76,7 +76,7 @@ class BlockChain:
             block_index += 1
         return True 
     
-    def add_transactions(self, sender, receiver, amount):#this is the method which will create transaction between the sender and reciever which will add our transaction to list of transactions
+    def add_transaction(self, sender, receiver, amount):#this is the method which will create transaction between the sender and reciever which will add our transaction to list of transactions
         
         self.transactions.append({'sender': sender,   #here we will be appending the new transactions 
                                   'receiver': receiver,
@@ -101,7 +101,7 @@ class BlockChain:
                     max_length = length
                     longest_chain = chain
         if longest_chain:
-            self.chain = longest_chain  
+            self.chain = longest_chain   
             return True
         return False #if the chain is not replaced 
              
@@ -111,6 +111,10 @@ class BlockChain:
 
 #creating a web app
 app = Flask(__name__)  
+
+#Creating an address for the node on Port 5000
+node_address = str(uuid4()).replace('-', '') #adding unique id to every block 
+
 
 #creating a blockchain 
 blockchain  = Blockchain() 
@@ -123,12 +127,14 @@ def mine_block():#this function will mine a block
     previous_proof = previous_block('proof')
     proof = blockchain.proof_of_work(previous_proof)
     previous_hash = blockchain.hash(previous_block)
+    blockchain.add_transaction(sender = node_address, reciever = 'Aryan', amount = 1)
     block = blockchain.create_block(proof,previous_hash)
     response = {'message':'Congrats You just mined a block!',
                 'index': block['index'],
                 'timestamp': block['timestamp'],
                 'proof': block['proof'],
-                'previous_hash': block['previous_hash']}
+                'previous_hash': block['previous_hash'],
+                'transactions': block['transactions']}
     return jsonify(response), 200
 
 # Getting the full Blockchain
