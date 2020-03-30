@@ -26,7 +26,7 @@ class BlockChain:
         self.transactions = [] #Making list of transactions before they are added to a block
         self.create_block(proof = 1, previous_hash = '0' ) #genesis block created by create block with proof 1 and prevous hash 0 
         #creating the genesis block
-        
+        self.nodes = set() 
     def create_block(self, proof, previous_hash):#here previous hash is the key element that links two blocks in a row here we will take proof as this is what our create block function will give us
         block = {'index': len(self.chain)+1,
                  'timestamp': str(datetime.datetime.now()),#to check at what date and time the changes where made
@@ -34,11 +34,12 @@ class BlockChain:
                  'previous_hash': previous_hash,
                  'transactions': self.transactions}#here it will take all the transactions 
         self.transactions = [] #here we make the transcations empty after adding the transactions in a block 
-        self.chain.append(block)
+        self.chain.append(block) 
         return block 
     
     
     def get_previous_block(self): #here this will get us the previous proof of the blockchain
+    
         return self.chain[-1] 
     
     def proof_of_work(self, previous_proof): # it is a piece of data where minors have to in oreder to mine a new block here function takes two argument self and previuos 
@@ -71,7 +72,7 @@ class BlockChain:
             hash_operation = hashlib.sha256(str(proof**2 - previous_proof**2).encode()).hexdigest
             if hash_operation[:4] != '0000':
                 return False 
-            previous_block = block
+            previous_block = block 
             block_index += 1
         return True 
     
@@ -82,12 +83,34 @@ class BlockChain:
                                   'amount': amount,}) 
         previous_block = self.get_previous_block()
         return previous_block['index']+1
+    
+    def add_node(self, address):
+        parsed_url = urlparse(address) #we will parse the address of the node here 
+        self.nodes.add(parsed_url.netloc) #netloc is the url including the port 5000
+       
+    def replace_chain(self):
+        network = self.nodes  #this is network containing all the set of nodes
+        longest_chain = None 
+        max_length = len(self.chain)
+        for nodes in network:
+            response = requests.get(f'http://{node}/get_chain') 
+            if response.status_code == 200:
+                length = response.json()['length']
+                chain = response.json()['chain']
+                if length > max_length and self.is_chain_valid(chain):
+                    max_length = length
+                    longest_chain = chain
+        if longest_chain:
+            self.chain = longest_chain  
+            return True
+        return False #if the chain is not replaced 
+             
         
 # Part 2 - Mining our Blockchain
 
 
 #creating a web app
-app = Flask(__name__)
+app = Flask(__name__)  
 
 #creating a blockchain 
 blockchain  = Blockchain() 
@@ -115,9 +138,23 @@ def get_chain():
     response = {'chain': blockchain.chain,
                 'length': len(blockchain.chain)} 
     return jsonify(response), 200
-    
-# Running the app by flask app
+   
+#for checking blockchain is valid
+@app.route('/is_valid', methods = ['GET'] )
+def is_valid():
+    is_valid = blockchain.is_chain_valid(blockchain.chain)
+    if is_valid:
+        response = {'message': 'Block Chain is Valid.'}
+    else:
+        response = {'message': 'Blockchain is Invalid '}
+    return jsonify(response), 200
+# Decentralizing Blockchain 
 
+
+
+
+# Running the app by flask app
+ 
 app.run(host = '0.0.0.0' port = 5000)   #here we will add host and port 
 
     
