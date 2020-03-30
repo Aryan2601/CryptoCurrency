@@ -164,9 +164,21 @@ def add_transaction():
     index = blockchain.add_transaction(json['sender'], json['receiver'],json['amount'])
     response = {'message': f'This transaction will be added to Block (index)'}
     return jsonify(response), 201
+
 # Decentralizing Blockchain 
 
-
+#Connecting new nodes
+@app.route('/connect_node', methods = ['POST'] )
+def connect_node():
+    json = request.get_json()
+    nodes = json.get('nodes')#will get the values of the keys
+    if nodes is None:
+        return "No node", 400
+    for node in nodes:
+        blockchain.add_node(node)
+    response = {'message': 'all the nodes are now connected. the mycoin Blockchain now contains the Following nodes:',
+                'total_nodes': list(blockchain.nodes)}
+    return jsonify(response), 201
 
 
 # Running the app by flask app
