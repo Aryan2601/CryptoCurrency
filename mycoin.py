@@ -3,9 +3,11 @@ Created on Sun Mar 29 00:13:23 2020
 @author: aryan
 """
 #requests==2.18.4 : pip install requests==2.18.4 
-    
-#creating a CryptoCuurency
-# Importing the Libraries
+  
+#Creating a CryptoCuurency 
+
+#Importing the Libraries
+
 import datetime
 import hashlib
 import json
@@ -15,17 +17,15 @@ import requests #this will be used to check the node in decentralized network re
 from uuid import uuid4
 from urllib.parse import urlparse
 
-
-
-
 # Part 1 - Building a Blockchain
+
 class BlockChain:
     
     def __init__(self): # here we are initializing the block chain
         self.chain = [] #it is a list where we will append diffrent blocks that will be mined
         self.transactions = [] #Making list of transactions before they are added to a block
         self.create_block(proof = 1, previous_hash = '0' ) #genesis block created by create block with proof 1 and prevous hash 0 
-        #creating the genesis block
+        # creating the genesis block
         self.nodes = set() 
     def create_block(self, proof, previous_hash):#here previous hash is the key element that links two blocks in a row here we will take proof as this is what our create block function will give us
         block = {'index': len(self.chain)+1,
@@ -109,14 +109,16 @@ class BlockChain:
 # Part 2 - Mining our Blockchain
 
 
-#creating a web app
+#Creating a web app 
+
 app = Flask(__name__)  
 
 #Creating an address for the node on Port 5000
-node_address = str(uuid4()).replace('-', '') #adding unique id to every block 
 
+node_address = str(uuid4()).replace('-', '') #Adding unique id to every block  
 
-#creating a blockchain 
+#Creating a blockchain 
+
 blockchain  = Blockchain() 
 
 
@@ -168,6 +170,7 @@ def add_transaction():
 # Decentralizing Blockchain 
 
 #Connecting new nodes
+
 @app.route('/connect_node', methods = ['POST'] )
 def connect_node():
     json = request.get_json()
@@ -180,14 +183,24 @@ def connect_node():
                 'total_nodes': list(blockchain.nodes)}
     return jsonify(response), 201
 
+#Replacing the chain by the longest chain if needed
+
+@app.route('/replace_chain', methods = ['GET'])
+def replace_chain():
+    is_chain_replaced = blockchain.replace_chain()
+    if is_chain_replaced:
+        response = {'message': 'The nodes had different chains so the chain was replaced by the longest one.',
+                    'new_chain': blockchain.chain}
+    else:
+        response = {'message': 'All good. The chain is the largest one.',
+                    'actual_chain': blockchain.chain}
+    return jsonify(response), 200
 
 # Running the app by flask app
- 
-app.run(host = '0.0.0.0' port = 5000)   #here we will add host and port 
 
-    
-    
-    
+app.run(host = '0.0.0.0' port = 5000)  #Here we will add host and port 
+
+
 
 
 
