@@ -1,6 +1,6 @@
 # Crypto Currency
 
-# What is a Cryptocurrency :question: :question: 
+# What is a Cryptocurrency :question: :question: :question:
 
 ![cryptocurrency-](https://user-images.githubusercontent.com/56226813/78174509-001c3400-7477-11ea-9b13-213dbd109946.jpg)
 
